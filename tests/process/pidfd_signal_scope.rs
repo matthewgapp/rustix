@@ -2,6 +2,7 @@
 
 use rustix::fd::AsFd as _;
 use rustix::{io, process};
+use serial_test::serial;
 use std::io::{Read as _, Write as _};
 use std::os::unix::process::{CommandExt as _, ExitStatusExt as _};
 use std::process::{Command, Stdio};
@@ -18,6 +19,7 @@ fn admit_group_scope() {
 }
 
 #[test]
+#[serial]
 fn process_group_probe_requires_original_leader_collection() {
     admit_group_scope();
     let mut child = Command::new("sh")
@@ -102,6 +104,7 @@ fn process_group_probe_requires_original_leader_collection() {
 }
 
 #[test]
+#[serial]
 fn original_group_fd_signals_residual_after_leader_collection() {
     admit_group_scope();
     let mut leader = Command::new("sh")
