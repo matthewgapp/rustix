@@ -18,8 +18,8 @@ use crate::ffi::CStr;
 use crate::io;
 use crate::pid::RawPid;
 use crate::process::{
-    Flock, Pid, PidfdFlags, PidfdGetfdFlags, Resource, Rlimit, Uid, WaitId, WaitIdOptions,
-    WaitIdStatus, WaitOptions, WaitStatus,
+    Flock, Pid, PidfdFlags, PidfdGetfdFlags, PidfdSignalFlags, Resource, Rlimit, Uid, WaitId,
+    WaitIdOptions, WaitIdStatus, WaitOptions, WaitStatus,
 };
 use crate::signal::Signal;
 use core::mem::MaybeUninit;
@@ -496,14 +496,18 @@ pub(crate) fn pidfd_open(pid: Pid, flags: PidfdFlags) -> io::Result<OwnedFd> {
 }
 
 #[inline]
-pub(crate) fn pidfd_send_signal(fd: BorrowedFd<'_>, sig: Signal) -> io::Result<()> {
+pub(crate) fn pidfd_send_signal(
+    fd: BorrowedFd<'_>,
+    sig: Option<Signal>,
+    flags: PidfdSignalFlags,
+) -> io::Result<()> {
     unsafe {
         ret(syscall_readonly!(
             __NR_pidfd_send_signal,
             fd,
-            sig,
+            c_int(sig.map_or(0, Signal::as_raw)),
             pass_usize(0),
-            pass_usize(0)
+            c_uint(flags.bits())
         ))
     }
 }
