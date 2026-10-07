@@ -79,6 +79,7 @@ use core::mem::MaybeUninit;
 #[cfg(target_os = "linux")]
 use {
     super::super::conv::ret_owned_fd, crate::process::PidfdFlags, crate::process::PidfdGetfdFlags,
+    crate::process::PidfdSignalFlags,
 };
 
 #[cfg(feature = "fs")]
@@ -623,21 +624,25 @@ pub(crate) fn pidfd_open(pid: Pid, flags: PidfdFlags) -> io::Result<OwnedFd> {
 }
 
 #[cfg(target_os = "linux")]
-pub(crate) fn pidfd_send_signal(pidfd: BorrowedFd<'_>, sig: Signal) -> io::Result<()> {
+pub(crate) fn pidfd_send_signal(
+    pidfd: BorrowedFd<'_>,
+    sig: Option<Signal>,
+    flags: PidfdSignalFlags,
+) -> io::Result<()> {
     syscall! {
         fn pidfd_send_signal(
             pid: c::pid_t,
             sig: c::c_int,
             info: *const c::siginfo_t,
-            flags: c::c_int
+            flags: c::c_uint
         ) via SYS_pidfd_send_signal -> c::c_int
     }
     unsafe {
         ret(pidfd_send_signal(
             borrowed_fd(pidfd),
-            sig.as_raw(),
+            sig.map_or(0, Signal::as_raw),
             core::ptr::null(),
-            0,
+            bitflags_bits!(flags),
         ))
     }
 }

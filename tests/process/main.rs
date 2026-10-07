@@ -18,6 +18,8 @@ mod fcntl_getlk;
 mod id;
 #[cfg(target_os = "linux")]
 mod pidfd;
+#[cfg(target_os = "linux")]
+mod pidfd_signal_scope;
 #[cfg(linux_kernel)]
 mod prctl;
 #[cfg(not(any(target_os = "fuchsia", target_os = "wasi")))] // WASI doesn't have [gs]etpriority.
