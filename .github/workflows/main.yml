@@ -10,7 +10,7 @@ on:
 jobs:
   rustfmt:
     name: Rustfmt
-    runs-on: ubuntu-latest
+    runs-on: jog
     steps:
     - uses: actions/checkout@v4
       with:
@@ -28,13 +28,13 @@ jobs:
         build: [stable, nightly, 1.65]
         include:
           - build: stable
-            os: ubuntu-latest
+            os: jog
             rust: stable
           - build: nightly
-            os: ubuntu-latest
+            os: jog
             rust: nightly
           - build: 1.65
-            os: ubuntu-latest
+            os: jog
             rust: 1.65
 
     env:
